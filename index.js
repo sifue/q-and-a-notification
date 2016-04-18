@@ -62,7 +62,7 @@ pQuestions.then((questions) => {
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let q of questions) {
       if (!questionsLinkSet.has(q.link)) {
-        let message = '【新規Q&A】: "' + q.question + '" http://www.nnn.ed.nico/' + q.link;
+        let message = '【新規Q&A】: "' + q.question + '" http://www.nnn.ed.nico' + q.link;
         let headers = {
           'Content-Type': 'application/json'
         };
