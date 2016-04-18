@@ -93,5 +93,10 @@ pQuestions.then((questions) => {
     }
 
   }
-  // ファイルに書き出し
+  // ファイルに取得したものを保存
+  fs.writeFile('./questions.json', JSON.stringify(questions), (err) => {
+    if (err) throw err;
+    console.log('------------');
+    console.log('ファイルに取得した取得したQ&Aを保存しました。');
+  });
 });
