@@ -56,8 +56,9 @@ pQuestions.then((questions) => {
   console.log('----取得したQ&A----');
   console.log(questions);
 
-  // 保存していたものと取得したものが違えば処理
-  if (JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
+  // questionsが存在し、保存していたものと取得したものが違えば処理 (すでになんらかの質問は存在している前提とする)
+  if (questions.length > 0 &&
+      JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
     console.log('処理開始');
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let q of questions) {
@@ -91,12 +92,11 @@ pQuestions.then((questions) => {
         break;
       }
     }
-
+    // ファイルに取得したものを保存
+    fs.writeFile('./questions.json', JSON.stringify(questions), (err) => {
+      if (err) throw err;
+      console.log('------------');
+      console.log('ファイルに取得した取得したQ&Aを保存しました。');
+    });
   }
-  // ファイルに取得したものを保存
-  fs.writeFile('./questions.json', JSON.stringify(questions), (err) => {
-    if (err) throw err;
-    console.log('------------');
-    console.log('ファイルに取得した取得したQ&Aを保存しました。');
-  });
 });
