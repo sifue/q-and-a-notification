@@ -22,7 +22,7 @@ try {
 }
 
 // N予備校 ログイン
-const pLogin = client.fetch('http://www.nnn.ed.nico/');
+const pLogin = client.fetch('http://www.nnn.ed.nico/login');
 const pNiconicoLogin = pLogin.then((result) => {
   return result.$('.u-button.type-primary').click();
 });
