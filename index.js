@@ -51,19 +51,35 @@ const pQuestions = pTop.then((result) => {
   return results;
 });
 
+// Q&Aのタグを取得
+const pQuestionAndTags = pQuestions.then((questions) => {
+   const promises = [];
+   for (let q of questions) {
+    let url = 'http://www.nnn.ed.nico' + q.link;
+    let p = client.fetch(url).then((result) => {
+      console.log(result);
+      const tags = result.$('.u-tags.type-clickable > > a').text();
+      q.tags = tags;
+      return q;
+    });
+    promises.push(p);
+   }
+   return Promise.all(promises);
+});
+
 // 取得したQ&Aを処理
-pQuestions.then((questions) => {
+pQuestionAndTags.then((questions) => {
   console.log('----取得したQ&A----');
   console.log(questions);
 
   // questionsが存在し、保存していたものと取得したものが違えば処理 (すでになんらかの質問は存在している前提とする)
   if (questions.length > 0 &&
-      JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
+    JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
     console.log('処理開始');
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let q of questions) {
       if (!questionsLinkSet.has(q.link)) {
-        let message = '【新規Q&A】: "' + q.question + '" http://www.nnn.ed.nico' + q.link;
+        let message = '【新規Q&A】:' + q.tags + ': "' + q.question + '" http://www.nnn.ed.nico' + q.link;
         let headers = {
           'Content-Type': 'application/json'
         };
