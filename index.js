@@ -57,7 +57,6 @@ const pQuestionAndTags = pQuestions.then((questions) => {
    for (let q of questions) {
     let url = 'http://www.nnn.ed.nico' + q.link;
     let p = client.fetch(url).then((result) => {
-      console.log(result);
       const tags = result.$('.u-tags.type-clickable > > a').text();
       q.tags = tags;
       return q;
