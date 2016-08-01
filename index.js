@@ -34,18 +34,27 @@ const pTop = pNiconicoLogin.then((result) => {
   return result.$('form[id=login_form]').submit();
 });
 
+// Q&Aの一覧
+const pQuestionList = pTop.then((result) => {
+  return result.$('.u-list-header-show-more > a').click();
+});
+
 // 新着のQ&Aのテキストの取得
-const pQuestions = pTop.then((result) => {
-  const ankers = result.$('.item-question-sub > a');
+const pQuestions = pQuestionList.then((result) => {
+  const ankers = result.$('.p-questions-list > li > a');
   const results = [];
   ankers.each(function(index){
-    const question = result.$(this).children('span').text();
+    const question = result.$('p', this).text();
     const link = result.$(this).attr('href');
-    const image = result.$(this).children('div').children('img').attr('src');
+    const name = result.$('.p-questions-information-item', this).eq(0).text();
+    const tags = result.$('.u-tags > li', this).map((i, e) => {
+      return result.$(e).text();
+    }).get().join(', ');
     results.push({
       question: question,
       link: link,
-      image: image
+      name: name,
+      tags: tags
     });
   });
   return results;
@@ -63,7 +72,8 @@ pQuestions.then((questions) => {
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let q of questions) {
       if (!questionsLinkSet.has(q.link)) {
-        let message = '【新規Q&A】: "' + q.question + '" http://www.nnn.ed.nico' + q.link;
+        let message = '【新規Q&A】: [' + q.tags + '] by ' + q.name + '\n' +
+                      q.question + '\nhttp://www.nnn.ed.nico' + q.link;
         let headers = {
           'Content-Type': 'application/json'
         };
