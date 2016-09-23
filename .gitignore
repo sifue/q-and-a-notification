@@ -1,3 +1,5 @@
 questions.json
 config.json
 node_modules
+replay_checker/replay_checker_config.json
+replay_checker/replays.json
