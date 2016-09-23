@@ -45,7 +45,7 @@ const pReplays = pNotices.then((result) => {
   const replays = [];
   notices.each(function (index) {
     const title = result.$(this).text();
-    if (title.includes('あなたがコメントした質問に、新たなコメントがつきました！')) {
+    if (title.includes('コメントがつきました！')) {
       const link = result.$(this).parent().parent().attr('href');
       const content = result.$(this).next().text();
       const time = result.$(this).parent().prev().text();
