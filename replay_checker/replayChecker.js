@@ -13,7 +13,7 @@ try {
   console.log('----保存していた返信----');
   console.log(replaysJson);
   for (let q of replaysJson) {
-    replaysLinkAndTimeSet.add(q.link + ' at ' + q.time);
+    replaysLinkAndTimeSet.add(r.link + ' : ' + r.content);
   }
   console.log('----保存していたQ&Aのリンク----');
   console.log(replaysLinkAndTimeSet);
@@ -71,7 +71,7 @@ const pPosted = pReplays.then((replays) => {
     console.log('処理開始');
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let r of replays) {
-      if (!replaysLinkAndTimeSet.has(r.link + ' at ' + r.time)) {
+      if (!replaysLinkAndTimeSet.has(r.link + ' : ' + r.content)) {
         console.log(r);
         let message = '【新規返信】:  "' + r.content + '" http://www.nnn.ed.nico/' +
           r.link + ' at ' + r.time + ' to ' + configJson.niconidoId;
