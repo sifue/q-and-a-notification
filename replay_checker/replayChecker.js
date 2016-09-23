@@ -12,7 +12,7 @@ try {
   replaysJson = JSON.parse(fs.readFileSync('replay_checker/replays.json', 'utf8'));
   console.log('----保存していた返信----');
   console.log(replaysJson);
-  for (let q of replaysJson) {
+  for (let r of replaysJson) {
     replaysLinkAndTimeSet.add(r.link + ' : ' + r.content);
   }
   console.log('----保存していたQ&Aのリンク----');
