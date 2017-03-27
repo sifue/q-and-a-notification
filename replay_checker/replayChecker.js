@@ -2,6 +2,7 @@
 const client = require('cheerio-httpcli');
 const request = require('request');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 // 設定読み込み
 const configJson = JSON.parse(fs.readFileSync('replay_checker/replay_checker_config.json', 'utf8'));
@@ -73,7 +74,9 @@ const pPosted = pReplays.then((replays) => {
     for (let r of replays) {
       if (!replaysLinkAndTimeSet.has(r.link + ' : ' + r.content)) {
         console.log(r);
-        let message = '【返信】:  "' + r.content + '" http://www.nnn.ed.nico/' +
+        // Slackに送信
+        let title = '【返信】:  "' + r.content;
+        let message = title + '" http://www.nnn.ed.nico/' +
           r.link + ' at ' + r.time + ' to ' + configJson.niconidoId;
         let headers = {
           'Content-Type': 'application/json'
@@ -99,6 +102,25 @@ const pPosted = pReplays.then((replays) => {
             console.log(message);
           }
         });
+
+        // Mail 送信
+        // create reusable transporter object using the default SMTP transport
+        let transporter = nodemailer.createTransport(configJson.mailSetting);
+        // setup email data with unicode symbols
+        let mailOptions = {
+            from: '"N予備Q&A" <nyobi_qa@nnn.ed.jp>', // sender address
+            to: 'nyobi_qa@nnn.ed.jp', // list of receivers
+            subject: title, // Subject line
+            text: message // plain text body
+        };
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message %s sent: %s', info.messageId, info.response);
+        });
+
       } else {
         break;
       }
@@ -112,4 +134,10 @@ const pPosted = pReplays.then((replays) => {
   });
 });
 
+pPosted.then(() => {
+  console.log('Finished.');
+}).catch((e) => {
+  console.log('Error occured:');
+  console.log(e);
+});
 
