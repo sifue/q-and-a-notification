@@ -73,7 +73,7 @@ const pPosted = pReplays.then((replays) => {
     for (let r of replays) {
       if (!replaysLinkAndTimeSet.has(r.link + ' : ' + r.content)) {
         console.log(r);
-        let message = '【返信】:  "' + r.content + '" http://www.nnn.ed.nico/' +
+        let message = '【返信】:  "' + r.content + '" ' +
           r.link + ' at ' + r.time + ' to ' + configJson.niconidoId;
         let headers = {
           'Content-Type': 'application/json'

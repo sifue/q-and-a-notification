@@ -76,7 +76,7 @@ let pFinished = pQuestions.then((questions) => {
         // Slackに送信
         let title = '【新規Q&A】: [' + q.tags + '] by ' + q.name;
         let message = title + '\n' +
-                      q.question + '\nhttp://www.nnn.ed.nico' + q.link;
+                      q.question + '\n' + q.link;
         let headers = {
           'Content-Type': 'application/json'
         };
