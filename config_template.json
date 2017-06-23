@@ -2,7 +2,7 @@
   "niconidoId": "hoge@fuga",
   "niconicoPassword": "hogefuga",
   "slackWebApiToken": "xoxp-49813274918",
-  "slackChannel": "channelname",
+  "slackChannelAndFilters" : [["channelname", ".*"]],
   "mailSetting": {
     "service": "Gmail",
     "auth": {

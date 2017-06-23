@@ -80,28 +80,38 @@ let pFinished = pQuestions.then((questions) => {
         let headers = {
           'Content-Type': 'application/json'
         };
-        let options = {
-          url: 'https://slack.com/api/chat.postMessage',
-          method: 'POST',
-          headers: headers,
-          json: true,
-          form: {
-            token: configJson.slackWebApiToken,
-            channel: configJson.slackChannel,
-            text: message,
-            username: 'q-and-a-notification',
-            icon_url: 'http://lorempixel.com/48/48'
-          }
-        };
-        request.post(options, (e, r, body) => {
-          if (e) {
-            console.log('error: ' + e);
-          } else {
-            console.log('----投稿内容----');
-            console.log(message);
+
+        let channelAndFilters = configJson.slackChannelAndFilters;
+        channelAndFilters.forEach((channelAndFilter) => {
+          let slackChannel = channelAndFilter[0];
+          let filter = channelAndFilter[1];
+          let regex = new RegExp(filter);
+
+          if (regex.test(message)) {
+            let options = {
+              url: 'https://slack.com/api/chat.postMessage',
+              method: 'POST',
+              headers: headers,
+              json: true,
+              form: {
+                token: configJson.slackWebApiToken,
+                channel: slackChannel,
+                text: message,
+                username: 'q-and-a-notification',
+                icon_url: 'http://lorempixel.com/48/48'
+              }
+            };
+            request.post(options, (e, r, body) => {
+              if (e) {
+                console.log('error: ' + e);
+              } else {
+                console.log('----投稿内容----');
+                console.log(message);
+              }
+            });
           }
         });
-
+        
         // Mail 送信
         // create reusable transporter object using the default SMTP transport
         let transporter = nodemailer.createTransport(configJson.mailSetting);
