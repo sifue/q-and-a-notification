@@ -65,6 +65,12 @@ const pReplays = pNotices.then((result) => {
 const pPosted = pReplays.then((replays) => {
   console.log('----取得した返信 ----');
   console.log(replays);
+
+  // time が '1分前' みたいな表示のことがあるので取り除く
+  replays.forEach((e) => {
+    e.time = null;
+  });
+
   // replaysが存在し、保存していたものと取得したものが違えば処理 (すでになんらかの質問は存在している前提とする)
   if (replays.length > 0 &&
     JSON.stringify(replaysJson) !== JSON.stringify(replays)) {
@@ -111,5 +117,13 @@ const pPosted = pReplays.then((replays) => {
     console.log('ファイルに取得した取得した新規返信を保存しました。');
   });
 });
+
+pPosted.then(() => {
+  console.log('Finished.');
+}).catch((e) => {
+  console.log('Error occured:');
+  console.log(e);
+});
+
 
 
