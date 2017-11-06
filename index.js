@@ -29,6 +29,7 @@ const pQuestionList = client.fetch('https://api.nnn.ed.nico/v1/questions?offset=
 const pQuestions = pQuestionList.then((result) => {
   const json = JSON.parse(result.body);
   const questions = json.questions;
+  questions.sort((a, b) => parseInt(b.id) - parseInt(a.id));
   const results = [];
   questions.forEach((e) => {
     const question = e.title;
