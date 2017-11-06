@@ -22,40 +22,26 @@ try {
   console.log('questions.json is not exists. error:' + e);
 }
 
-// N予備校 ログイン
-const pLogin = client.fetch('http://www.nnn.ed.nico/login');
-const pNiconicoLogin = pLogin.then((result) => {
-  return result.$('.u-button.type-primary').click();
-});
-
-// ニコニコ ログイン
-const pTop = pNiconicoLogin.then((result) => {
-  result.$('#input__mailtel').val(configJson.niconidoId);
-  result.$('#input__password').val(configJson.niconicoPassword);
-  return result.$('form[id=login_form]').submit();
-});
-
 // Q&Aの一覧
-const pQuestionList = pTop.then((result) => {
-  return result.$('.u-list-header-show-more > a').click();
-});
+const pQuestionList = client.fetch('https://api.nnn.ed.nico/v1/questions?offset=0&detail=false');
 
 // 新着のQ&Aのテキストの取得
 const pQuestions = pQuestionList.then((result) => {
-  const ankers = result.$('.p-questions-list > li > a');
+  const json = JSON.parse(result.body);
+  const questions = json.questions;
   const results = [];
-  ankers.each(function(index){
-    const question = result.$('p', this).text();
-    const link = result.$(this).attr('href');
-    const name = result.$('.p-questions-information-item', this).eq(0).text();
-    const tags = result.$('.u-tags > li', this).map((i, e) => {
-      return result.$(e).text();
-    }).get().join(', ');
+  questions.forEach((e) => {
+    const question = e.title;
+    const link = 'https://www.nnn.ed.nico/questions/' + e.id;
+    const name = e.user.name;
+    const tags = e.tags.join(', ');
+    const group = e.group;
     results.push({
       question: question,
       link: link,
       name: name,
-      tags: tags
+      tags: tags,
+      group: group
     });
   });
   return results;
