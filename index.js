@@ -104,7 +104,7 @@ let pFinished = pQuestions.then((questions) => {
         let transporter = nodemailer.createTransport(configJson.mailSetting);
         // setup email data with unicode symbols
         let mailOptions = {
-            from: '"N予備Q&A" <nyobi_qa@nnn.ed.jp>', // sender address
+            from: '"N予備Q&A" <nyobi_qa@nnn.ac.jp>', // sender address
             to: 'nyobi_qa@nnn.ed.jp', // list of receivers
             subject: title, // Subject line
             text: message // plain text body
