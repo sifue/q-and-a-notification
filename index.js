@@ -101,22 +101,23 @@ let pFinished = pQuestions.then((questions) => {
         
         // Mail 送信
         // create reusable transporter object using the default SMTP transport
-        let transporter = nodemailer.createTransport(configJson.mailSetting);
-        // setup email data with unicode symbols
-        let mailOptions = {
-            from: '"N予備Q&A" <nyobi_qa@nnn.ac.jp>', // sender address
-            to: 'nyobi_qa@nnn.ed.jp', // list of receivers
-            subject: title, // Subject line
-            text: message // plain text body
-        };
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                return console.log(error);
-            }
-            console.log('Message %s sent: %s', info.messageId, info.response);
-        });
-
+        if (configJson.mailSetting) {
+          let transporter = nodemailer.createTransport(configJson.mailSetting);
+          // setup email data with unicode symbols
+          let mailOptions = {
+              from: '"N予備Q&A" <nyobi_qa@nnn.ac.jp>', // sender address
+              to: 'nyobi_qa@nnn.ed.jp', // list of receivers
+              subject: title, // Subject line
+              text: message // plain text body
+          };
+          // send mail with defined transport object
+          transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                  return console.log(error);
+              }
+              console.log('Message %s sent: %s', info.messageId, info.response);
+          });
+        }
       } else {
         break;
       }
