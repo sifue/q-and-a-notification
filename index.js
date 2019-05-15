@@ -1,6 +1,6 @@
 'use strict';
 const client = require('cheerio-httpcli');
-const request = require('request');
+const { WebClient } = require('@slack/client');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 
@@ -55,18 +55,18 @@ let pFinished = pQuestions.then((questions) => {
 
   // questionsが存在し、保存していたものと取得したものが違えば処理 (すでになんらかの質問は存在している前提とする)
   if (questions.length > 0 &&
-      JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
+    JSON.stringify(questionsJson) !== JSON.stringify(questions)) {
     console.log('処理開始');
+
+    const promisesPostMessage = [];
+
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let q of questions) {
       if (!questionsLinkSet.has(q.link)) {
-        // Slackに送信
+        // Slackに送信 (非同期 - この結果だけPromiseに)
         let title = '【新規Q&A】: [' + q.tags + '] by ' + q.name;
         let message = title + '\n' +
                       q.question + '\n' + q.link;
-        let headers = {
-          'Content-Type': 'application/json'
-        };
 
         let channelAndFilters = configJson.slackChannelAndFilters;
         channelAndFilters.forEach((channelAndFilter) => {
@@ -75,31 +75,15 @@ let pFinished = pQuestions.then((questions) => {
           let regex = new RegExp(filter);
 
           if (regex.test(message)) {
-            let options = {
-              url: 'https://slack.com/api/chat.postMessage',
-              method: 'POST',
-              headers: headers,
-              json: true,
-              form: {
-                token: configJson.slackWebApiToken,
-                channel: slackChannel,
-                text: message,
-                username: 'q-and-a-notification',
-                icon_url: 'http://lorempixel.com/48/48'
-              }
-            };
-            request.post(options, (e, r, body) => {
-              if (e) {
-                console.log('error: ' + e);
-              } else {
-                console.log('----投稿内容----');
-                console.log(message);
-              }
-            });
+
+            const token = configJson.slackWebApiToken;
+            const web = new WebClient(token);
+            promisesPostMessage.push(
+              web.chat.postMessage({ channel: slackChannel, text: message }));
           }
         });
         
-        // Mail 送信
+        // Mail 送信 (非同期)
         // create reusable transporter object using the default SMTP transport
         if (configJson.mailSetting) {
           let transporter = nodemailer.createTransport(configJson.mailSetting);
@@ -120,14 +104,16 @@ let pFinished = pQuestions.then((questions) => {
         }
       } else {
         break;
-      }
+      } 
     }
-    // ファイルに取得したものを保存
+    // ファイルに取得したものを保存 (非同期)
     fs.writeFile('./questions.json', JSON.stringify(questions), (err) => {
       if (err) throw err;
       console.log('------------');
       console.log('ファイルに取得した取得したQ&Aを保存しました。');
     });
+
+    return Promise.all(promisesPostMessage);
   }
 });
 

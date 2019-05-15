@@ -1,6 +1,6 @@
 'use strict';
 const client = require('cheerio-httpcli');
-const request = require('request');
+const { WebClient } = require('@slack/client');
 const fs = require('fs');
 
 // 設定読み込み
@@ -66,6 +66,8 @@ const pPosted = pReplays.then((replays) => {
   console.log('----取得した返信 ----');
   console.log(replays);
 
+  const promisesPostMessage = [];
+
   // time が '1分前' みたいな表示のことがあるので取り除く
   replays.forEach((e) => {
     e.time = null;
@@ -75,47 +77,32 @@ const pPosted = pReplays.then((replays) => {
   if (replays.length > 0 &&
     JSON.stringify(replaysJson) !== JSON.stringify(replays)) {
     console.log('処理開始');
+
     // 取得したものの先頭から処理して、1分前のものにあれば投稿
     for (let r of replays) {
       if (!replaysLinkAndTimeSet.has(r.link + ' : ' + r.content)) {
         console.log(r);
         let message = '【返信】:  "' + r.content + '" https://www.nnn.ed.nico/' +
           r.link + ' to ' + configJson.niconidoId;
-        let headers = {
-          'Content-Type': 'application/json'
-        };
-        let options = {
-          url: 'https://slack.com/api/chat.postMessage',
-          method: 'POST',
-          headers: headers,
-          json: true,
-          form: {
-            token: configJson.slackWebApiToken,
-            channel: configJson.slackChannel,
-            text: message,
-            username: 'q-and-a-notification',
-            icon_url: 'http://lorempixel.com/48/48'
-          }
-        };
-        request.post(options, (e, r, body) => {
-          if (e) {
-            console.log('error: ' + e);
-          } else {
-            console.log('----投稿内容----');
-            console.log(message);
-          }
-        });
+
+        const token = configJson.slackWebApiToken;
+        const web = new WebClient(token);
+        promisesPostMessage.push(
+          web.chat.postMessage({ channel: configJson.slackChannel, text: message }));
       } else {
         break;
       }
     }
   }
 
+  // ファイルに取得したものを保存 (非同期)
   fs.writeFile('replay_checker/replays.json', JSON.stringify(replays), (err) => {
     if (err) throw err;
     console.log('------------');
     console.log('ファイルに取得した取得した新規返信を保存しました。');
   });
+
+  return Promise.all(promisesPostMessage);
 });
 
 pPosted.then(() => {
